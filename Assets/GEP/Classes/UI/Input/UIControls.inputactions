@@ -1,0 +1,54 @@
+{
+    "name": "UIControls",
+    "maps": [
+        {
+            "name": "Inventory",
+            "id": "27d1a123-ab04-42ba-bb6e-89318ffe6eab",
+            "actions": [
+                {
+                    "name": "Open",
+                    "type": "Button",
+                    "id": "93c0a20d-9af4-4e53-984c-a4ea9ee5bc49",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "9f2cb5fc-b446-43ec-9a0b-3157e3f79778",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "8a4b3cf9-2d99-40e7-ba59-ec291d827094",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Open",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "47f291f2-05fc-4803-b1b7-37a843931df6",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
