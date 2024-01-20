@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+
 using InventorySpace;
 
 public class PlayerInventory : InventoryUIBase
 {
     public GameObject player;
     public GameObject object_spawn;
+    private const float object_spawn_distance = 2f;
     public NPCsInventory npc_inventory;
 
     public GameObject npc;
@@ -19,12 +21,44 @@ public class PlayerInventory : InventoryUIBase
     {
         base.Start();
         near_npc_flag = false;
+        InitialItems();
     }
 
     protected override void Awake()
     {
         base.Awake();
         ui_controller = GameObject.FindGameObjectsWithTag("UI Controller")[0].GetComponent<UIController>();
+    }
+
+    private void InitialItems()
+    {
+        // Same number may be generated in a row, but this increases the randomness so it's fine
+        int x = Random.Range(0, Inventory.column) % Inventory.column;
+        int y = Random.Range(0, Inventory.row) % Inventory.row;
+        inventory.slots[x, y].AddItem(new RedCube());
+        inventory.slots[x, y].item_count = 3;
+        inventory.slots[Random.Range(0, Inventory.column) % Inventory.column, Random.Range(0, Inventory.row) % Inventory.row].AddItem(new GreyCube());
+        inventory.slots[Random.Range(0, Inventory.column) % Inventory.column, Random.Range(0, Inventory.row) % Inventory.row].AddItem(new RedCube());
+
+        for (int i = 0; i < Inventory.column * Inventory.row; i++)
+        {
+            // Get the assigned slot
+            GameObject slot = transform.GetChild(0).GetChild(i).gameObject;
+            
+            x = inventory.IndexToV2(i).x;
+            y = inventory.IndexToV2(i).y;
+            
+            // Update the inventory item count
+            slot.transform.GetChild(1).GetComponent<ItemCount>().SetCount(inventory.slots[x, y].item_count);
+
+            // Change the sprite of the slot
+            Image temp = slot.transform.GetChild(0).GetComponent<Image>();
+            Item item = inventory.slots[x, y].item;
+            temp.sprite = Resources.Load<Sprite>(item.image_link);
+
+            // Update the color of the slot
+            temp.color = new Color(1f, 1f, 1f, 1f);
+        }
     }
 
     protected override void OnEnable()
@@ -132,8 +166,29 @@ public class PlayerInventory : InventoryUIBase
 
         // Set position
         new_object.transform.SetParent(player.transform, true);
-        new_object.transform.localPosition = new Vector3(0f, 0f, 1f);
+        Vector2 v2 = getRandomV2(object_spawn_distance);
+        new_object.transform.localPosition = new Vector3(v2.x, 0f, v2.y);
         new_object.transform.SetParent(object_spawn.transform, true);
         new_object.transform.localPosition = new Vector3(new_object.transform.localPosition.x, player.transform.localPosition.y, new_object.transform.localPosition.z);
+    }
+
+    private Vector2 getRandomV2(float f)
+    {
+        Vector2 v2;
+        v2.x = Random.Range(0f, f);
+        v2.y = Mathf.Sqrt(f * f - v2.x * v2.x);
+
+        // 50% chance changing it to negative
+        if (Random.Range(0f, 1f) > 0.5f)
+        {
+            v2.x *= -1;
+        }
+
+        if (Random.Range(0f, 1f) > 0.5f)
+        {
+            v2.y *= -1;
+        }
+
+        return v2;
     }
 }
