@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using InventorySpace;
 
-public class ItemMonoBase : MonoBehaviour, IPickupable
+public class GreyCubeItem : ItemMonoBase
 {
-    protected Item item;
-
-    public PlayerInventory player_inventory;
-
     // Start is called before the first frame update
     void Start()
     {
-        
+        item = new GreyCube();
     }
 
     // Update is called once per frame
@@ -24,17 +20,4 @@ public class ItemMonoBase : MonoBehaviour, IPickupable
     /// <summary>
     /// This is where you will want to add your own implementation for your own systems.
     /// </summary>
-    public void Pickup()
-    {
-        bool added_flag = player_inventory.AddItem(item);
-        if (added_flag)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    public int getStackLimit()
-    {
-        return item.stack_limit;
-    }
 }

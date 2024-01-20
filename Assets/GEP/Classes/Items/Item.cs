@@ -23,7 +23,8 @@ namespace InventorySpace
         public enum ItemID
         {
             None = 0,
-            RedCube = 1
+            RedCube = 1,
+            GreyCube = 2
         }
     }
 
@@ -41,8 +42,19 @@ namespace InventorySpace
         {
             stack_limit = 3;
             prefab_link = "Prefabs/Example Item";
-            image_link = "red_cube1";
-            description = "\nRed Cube\n\nA red cube, do nothing.";
+            image_link = "red_cube";
+            description = "\nRed Cube\n\nA red cube, bring it to the NPC.";
+        }
+    }
+
+    public class GreyCube: Item
+    {
+        public GreyCube(): base(ItemID.GreyCube)
+        {
+            stack_limit = 2;
+            prefab_link = "Prefabs/Grey Cube";
+            image_link = "grey_cube";
+            description = "\nGrey Cube\n\nA grey cube, bring it to the NPC.";
         }
     }
 }

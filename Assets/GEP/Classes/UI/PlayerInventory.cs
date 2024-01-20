@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using InventorySpace;
 
-public class InventoryUIControl : InventoryUIBase
+public class PlayerInventory : InventoryUIBase
 {
     public GameObject player;
     public GameObject object_spawn;
@@ -13,11 +13,18 @@ public class InventoryUIControl : InventoryUIBase
 
     public GameObject npc;
     private bool near_npc_flag;
+    private UIController ui_controller;
 
     protected override void Start()
     {
         base.Start();
         near_npc_flag = false;
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        ui_controller = GameObject.FindGameObjectsWithTag("UI Controller")[0].GetComponent<UIController>();
     }
 
     protected override void OnEnable()
@@ -36,25 +43,49 @@ public class InventoryUIControl : InventoryUIBase
     {
         base.OnMouseClick(context);
 
-        // Item deleting
-        DeleteItem(PointsOnSlotCheck(Mouse.current.position.ReadValue()));
-
-        // if clicked on the 'change inventory' button
-        if (RectTransformToScreenSpace(transform.GetChild(2).GetChild(1).GetComponent<Image>().rectTransform).Contains(Mouse.current.position.ReadValue()))
+        // Near npc
+        if (near_npc_flag)
         {
-            // Near npc
-            if (near_npc_flag)
+            // if clicked on the 'change inventory' button (the right arrow appear when player is near to npc)
+            if (RectTransformToScreenSpace(transform.GetChild(2).GetChild(1).GetComponent<Image>().rectTransform).Contains(Mouse.current.position.ReadValue()))
             {
                 // Changing to NPC's inventory
                 panel.SetActive(false);
                 npc_inventory.OpenInventory(true);
             }
+
+            int x = PointsOnSlotCheck(Mouse.current.position.ReadValue());
+
+            // Item transfering
+            if (x >= 0)
+            {
+                ui_controller.playerToNPC(x);
+            }
+        }
+
+        else
+        {    
+            // Item deleting
+            DeleteItem(PointsOnSlotCheck(Mouse.current.position.ReadValue()));
         }
     }
 
     private void ToggleInventory(InputAction.CallbackContext value)
     {
-        panel.SetActive(!panel.activeSelf);
+        if (!panel.activeSelf)
+        {
+            // Ask UI controller for permission to open the inventory UI
+            // No other inventory can be opened when one is on
+            if (ui_controller.getInvenOpenPermission())
+            {
+                panel.SetActive(true);
+            }
+        }
+
+        else
+        {
+            panel.SetActive(false);
+        }
     }
 
     protected override void Update()
@@ -68,12 +99,12 @@ public class InventoryUIControl : InventoryUIBase
         transform.GetChild(2).GetChild(1).GetComponent<Image>().enabled = near_npc_flag;
     }
 
-    public override void DeleteItem(int n)
+    public override Item.ItemID DeleteItem(int n)
     {
         // if out of bound
         if ((n >= Inventory.column * Inventory.row) || (n < 0))
         {
-            return;
+            return Item.ItemID.None;
         }
 
         Vector2Int slot_pos = inventory.IndexToV2(n);
@@ -84,7 +115,12 @@ public class InventoryUIControl : InventoryUIBase
         }   
 
         // Do the other thing
-        base.DeleteItem(n);
+        return base.DeleteItem(n);
+    }
+
+    public Item.ItemID BaseDeleteItem(int n)
+    {
+        return base.DeleteItem(n);
     }
 
     // Create a game object to the world
@@ -92,7 +128,7 @@ public class InventoryUIControl : InventoryUIBase
     {
         GameObject prefab = Resources.Load<GameObject>(item.prefab_link);
         GameObject new_object = Instantiate(prefab);
-        new_object.GetComponent<ItemMonoBase>().inventory_controller_script = this;
+        new_object.GetComponent<ItemMonoBase>().player_inventory = this;
 
         // Set position
         new_object.transform.SetParent(player.transform, true);

@@ -104,7 +104,7 @@ namespace StarterAssets
 
         private bool _hasAnimator;
 
-        public InventoryUIControl inventory_controller_script;
+        private UIController ui_controller;
 
         private bool IsCurrentDeviceMouse
         {
@@ -122,6 +122,9 @@ namespace StarterAssets
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
+
+            // get a reference to the ui controller
+            ui_controller = GameObject.FindGameObjectsWithTag("UI Controller")[0].GetComponent<UIController>();
         }
 
         private void Start()
@@ -208,7 +211,7 @@ namespace StarterAssets
 
             // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is no input, set the target speed to 0
-            if ((_input.move == Vector2.zero) || (inventory_controller_script.transform.GetChild(0).gameObject.activeSelf)) targetSpeed = 0.0f;
+            if ((_input.move == Vector2.zero) || (ui_controller.getPlayerInvenOpen())) targetSpeed = 0.0f;
 
             // a reference to the players current horizontal velocity
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
@@ -241,7 +244,7 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if ((_input.move != Vector2.zero) && (!inventory_controller_script.transform.GetChild(0).gameObject.activeSelf))
+            if ((_input.move != Vector2.zero) && (!ui_controller.getPlayerInvenOpen()))
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
                                   _mainCamera.transform.eulerAngles.y;
@@ -288,7 +291,7 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if ((_input.jump && (!inventory_controller_script.transform.GetChild(0).gameObject.activeSelf)) && _jumpTimeoutDelta <= 0.0f)
+                if ((_input.jump && (!ui_controller.getPlayerInvenOpen())) && _jumpTimeoutDelta <= 0.0f)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);

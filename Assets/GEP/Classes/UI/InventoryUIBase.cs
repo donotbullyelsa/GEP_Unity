@@ -52,7 +52,7 @@ public class InventoryUIBase : MonoBehaviour
         
     }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         input = new UIControls();
     }
@@ -126,15 +126,20 @@ public class InventoryUIBase : MonoBehaviour
         Image temp = slot.transform.GetChild(0).GetComponent<Image>();
         temp.sprite = Resources.Load<Sprite>(item.image_link);
 
+        // Update the color of the slot
+        temp.color = new Color(1f, 1f, 1f, 1f);
+
         return true;
     }
 
-    public virtual void DeleteItem(int n)
+    public virtual Item.ItemID DeleteItem(int n)
     {
+        Item.ItemID id = Item.ItemID.None;
+
         // if out of bound
         if ((n >= Inventory.column * Inventory.row) || (n < 0))
         {
-            return;
+            return id;
         }
 
         Vector2Int slot_pos = inventory.IndexToV2(n);
@@ -143,6 +148,7 @@ public class InventoryUIBase : MonoBehaviour
         {
             // Slot item count decrease 1
             inventory.slots[slot_pos.x, slot_pos.y].item_count--;
+            id = inventory.slots[slot_pos.x, slot_pos.y].item.id;
 
             // Get the assigned slot
             GameObject slot = transform.GetChild(0).GetChild(n).gameObject;
@@ -158,8 +164,13 @@ public class InventoryUIBase : MonoBehaviour
                 // Delete the slot image sprite
                 Image temp = slot.transform.GetChild(0).GetComponent<Image>();
                 temp.sprite = null;
+
+                // Update the color of the slot
+                temp.color = new Color(1f, 1f, 1f, 0.38f);
             }
         }
+
+        return id;
     }
 
     protected bool SlotIsNotEmpty(int n)
